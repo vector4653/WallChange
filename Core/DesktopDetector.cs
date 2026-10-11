@@ -294,6 +294,15 @@ public class DesktopDetector : IDisposable
                 }
             }
         }
+        else
+        {
+            // If the specific screen edge point is directly over the desktop surface / empty space
+            // (i.e. not occluded by the foreground window or an active window covering the edge)
+            if (IsPointOnDesktopSurface(pt, _ownWindowHandle))
+            {
+                return true;
+            }
+        }
 
         return false;
     }

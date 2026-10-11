@@ -62,6 +62,7 @@ public partial class MainOverlayWindow : Window
     private const double AnimationDurationMs = 230;
     private double _lastKnownWidth = 640;
     private double _lastKnownHeight = 60;
+    private DateTime _lastSettingsPopupClosedTime = DateTime.MinValue;
 
     public WallpaperManager WallpaperManager => _wallpaperManager;
     public DesktopDetector DesktopDetector => _desktopDetector;
@@ -99,7 +100,7 @@ public partial class MainOverlayWindow : Window
         _hideDelayTimer.Tick += (s, e) =>
         {
             _hideDelayTimer.Stop();
-            if (!IsPinned && !IsMouseOver)
+            if (!IsPinned && !IsMouseOver && SettingsPopup?.IsOpen != true)
             {
                 SlideOut();
             }
@@ -135,10 +136,11 @@ public partial class MainOverlayWindow : Window
 
         _wallpaperManager.CurrentStyle = _settingsManager.Settings.WallpaperStyle;
 
+        ApplyTheme(_settingsManager.Settings.ThemeMode, _settingsManager.Settings.LastWallpaperPath);
         ApplyLayoutMode(_currentEdge);
         UpdateWindowPositionAndBounds();
 
-        // Start 100% hidden and invisible
+        // Start hidden and invisible
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
         {
             UpdateWindowPositionAndBounds();
@@ -147,6 +149,7 @@ public partial class MainOverlayWindow : Window
         }));
 
         LoadInitialWallpapers();
+        UpdateSettingsFolderDisplay();
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -195,6 +198,11 @@ public partial class MainOverlayWindow : Window
         {
             TryLoadDefaultWindowsWallpaper();
         }
+
+        if (_settingsManager.Settings.ThemeMode == AppThemeMode.Adaptive)
+        {
+            ApplyTheme(AppThemeMode.Adaptive, _wallpaperManager.CurrentImagePath);
+        }
     }
 
     private void TryLoadDefaultWindowsWallpaper()
@@ -235,31 +243,20 @@ public partial class MainOverlayWindow : Window
 
     private void ApplyLayoutMode(ScreenEdge edge)
     {
-        if (HorizontalLayout == null || VerticalLayout == null || CmbPositionH == null || CmbPositionV == null) return;
+        if (HorizontalLayout == null || VerticalLayout == null) return;
         _isUpdatingUi = true;
         try
         {
             bool isVertical = (edge == ScreenEdge.LeftMiddle || edge == ScreenEdge.RightMiddle);
-            int selectedIdx = edge switch
-            {
-                ScreenEdge.TopMiddle => 0,
-                ScreenEdge.BottomMiddle => 1,
-                ScreenEdge.LeftMiddle => 2,
-                ScreenEdge.RightMiddle => 3,
-                _ => 0
-            };
-
             if (isVertical)
             {
                 HorizontalLayout.Visibility = Visibility.Collapsed;
                 VerticalLayout.Visibility = Visibility.Visible;
-                CmbPositionV.SelectedIndex = selectedIdx;
             }
             else
             {
                 VerticalLayout.Visibility = Visibility.Collapsed;
                 HorizontalLayout.Visibility = Visibility.Visible;
-                CmbPositionH.SelectedIndex = selectedIdx;
             }
         }
         finally
@@ -270,7 +267,6 @@ public partial class MainOverlayWindow : Window
 
     public void UpdateWindowPositionAndBounds()
     {
-        // Default positioning to Primary Monitor (origin 0,0)
         IntPtr hPrimary = MonitorFromPoint(new DesktopDetector.POINT(0, 0), MONITOR_DEFAULTTOPRIMARY);
         var mi = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
         if (hPrimary != IntPtr.Zero && GetMonitorInfo(hPrimary, ref mi))
@@ -335,7 +331,6 @@ public partial class MainOverlayWindow : Window
 
         if (!GetCursorPos(out DesktopDetector.POINT pt)) return;
 
-        // Detect which monitor the cursor is physically on right now
         IntPtr hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTONULL);
         if (hMonitor == IntPtr.Zero) return;
 
@@ -365,28 +360,28 @@ public partial class MainOverlayWindow : Window
             {
                 double dockLeftPx = mi.rcMonitor.Left + (monWidth - widthPx) / 2.0;
                 double dockRightPx = dockLeftPx + widthPx;
-                hitEdge = (pt.Y <= mi.rcMonitor.Top + 3) && (pt.X >= dockLeftPx - 30) && (pt.X <= dockRightPx + 30);
+                hitEdge = (pt.Y <= mi.rcMonitor.Top + 12) && (pt.X >= dockLeftPx - 50) && (pt.X <= dockRightPx + 50);
                 break;
             }
             case ScreenEdge.BottomMiddle:
             {
                 double dockLeftPx = mi.rcMonitor.Left + (monWidth - widthPx) / 2.0;
                 double dockRightPx = dockLeftPx + widthPx;
-                hitEdge = (pt.Y >= mi.rcMonitor.Bottom - 4) && (pt.X >= dockLeftPx - 30) && (pt.X <= dockRightPx + 30);
+                hitEdge = (pt.Y >= mi.rcMonitor.Bottom - 12) && (pt.X >= dockLeftPx - 50) && (pt.X <= dockRightPx + 50);
                 break;
             }
             case ScreenEdge.LeftMiddle:
             {
                 double dockTopPx = mi.rcMonitor.Top + (monHeight - heightPx) / 2.0;
                 double dockBottomPx = dockTopPx + heightPx;
-                hitEdge = (pt.X <= mi.rcMonitor.Left + 3) && (pt.Y >= dockTopPx - 30) && (pt.Y <= dockBottomPx + 30);
+                hitEdge = (pt.X <= mi.rcMonitor.Left + 12) && (pt.Y >= dockTopPx - 50) && (pt.Y <= dockBottomPx + 50);
                 break;
             }
             case ScreenEdge.RightMiddle:
             {
                 double dockTopPx = mi.rcMonitor.Top + (monHeight - heightPx) / 2.0;
                 double dockBottomPx = dockTopPx + heightPx;
-                hitEdge = (pt.X >= mi.rcMonitor.Right - 4) && (pt.Y >= dockTopPx - 30) && (pt.Y <= dockBottomPx + 30);
+                hitEdge = (pt.X >= mi.rcMonitor.Right - 12) && (pt.Y >= dockTopPx - 50) && (pt.Y <= dockBottomPx + 50);
                 break;
             }
         }
@@ -445,7 +440,7 @@ public partial class MainOverlayWindow : Window
 
     public void SlideOut(bool instant = false)
     {
-        if (IsPinned) return;
+        if (IsPinned || SettingsPopup?.IsOpen == true) return;
 
         _isOpen = false;
         double targetVal = GetHiddenOffset();
@@ -508,7 +503,7 @@ public partial class MainOverlayWindow : Window
     {
         double width = ActualWidth > 0 ? ActualWidth : _lastKnownWidth;
         double height = ActualHeight > 0 ? ActualHeight : _lastKnownHeight;
-        const double ExtraMargin = 40.0; // Completely clears drop shadow offscreen
+        const double ExtraMargin = 40.0;
 
         return _currentEdge switch
         {
@@ -538,7 +533,7 @@ public partial class MainOverlayWindow : Window
 
     private void Window_MouseLeave(object sender, MouseEventArgs e)
     {
-        if (!IsPinned)
+        if (!IsPinned && SettingsPopup?.IsOpen != true)
         {
             _hideDelayTimer.Stop();
             _hideDelayTimer.Start();
@@ -549,7 +544,7 @@ public partial class MainOverlayWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            if (!isDesktopActive && _isOpen && !IsPinned)
+            if (!isDesktopActive && _isOpen && !IsPinned && SettingsPopup?.IsOpen != true)
             {
                 SlideOut();
             }
@@ -606,6 +601,7 @@ public partial class MainOverlayWindow : Window
                 {
                     _wallpaperManager.ApplyCurrent();
                     _settingsManager.UpdateWallpaperDirectory(dialog.FolderName, _wallpaperManager.CurrentIndex, _wallpaperManager.CurrentImagePath);
+                    UpdateSettingsFolderDisplay();
                 }
                 else
                 {
@@ -620,29 +616,17 @@ public partial class MainOverlayWindow : Window
         }
     }
 
-    private void CmbPosition_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (!IsLoaded || _isUpdatingUi) return;
-
-        var cmb = sender as ComboBox;
-        if (cmb == null || cmb.SelectedIndex < 0) return;
-
-        var edge = cmb.SelectedIndex switch
-        {
-            0 => ScreenEdge.TopMiddle,
-            1 => ScreenEdge.BottomMiddle,
-            2 => ScreenEdge.LeftMiddle,
-            3 => ScreenEdge.RightMiddle,
-            _ => ScreenEdge.TopMiddle
-        };
-
-        SetScreenEdge(edge);
-        _settingsManager.UpdateDockEdge(edge.ToString());
-    }
-
     private void OnFolderLoaded(object? sender, EventArgs e)
     {
-        Dispatcher.Invoke(UpdateStatusDisplay);
+        Dispatcher.Invoke(() =>
+        {
+            UpdateStatusDisplay();
+            UpdateSettingsFolderDisplay();
+            if (_settingsManager.Settings.ThemeMode == AppThemeMode.Adaptive)
+            {
+                ApplyTheme(AppThemeMode.Adaptive, _wallpaperManager.CurrentImagePath);
+            }
+        });
     }
 
     private void OnWallpaperChanged(object? sender, WallpaperChangedEventArgs e)
@@ -650,13 +634,20 @@ public partial class MainOverlayWindow : Window
         _settingsManager.Settings.LastWallpaperIndex = e.Index;
         _settingsManager.Settings.LastWallpaperPath = e.ImagePath;
         _settingsManager.Save();
-        Dispatcher.Invoke(UpdateStatusDisplay);
+        Dispatcher.Invoke(() =>
+        {
+            UpdateStatusDisplay();
+            if (_settingsManager.Settings.ThemeMode == AppThemeMode.Adaptive)
+            {
+                ApplyTheme(AppThemeMode.Adaptive, e.ImagePath);
+            }
+        });
     }
 
     private void UpdateStatusDisplay()
     {
         string nameText = "No Images Found";
-        string countText = "Click Browse Folder";
+        string countText = "Click Settings to pick folder";
 
         if (_wallpaperManager.TotalCount > 0 && !string.IsNullOrEmpty(_wallpaperManager.CurrentImagePath))
         {
@@ -669,5 +660,330 @@ public partial class MainOverlayWindow : Window
 
         if (TxtWallpaperNameV != null) TxtWallpaperNameV.Text = nameText;
         if (TxtWallpaperIndexV != null) TxtWallpaperIndexV.Text = countText;
+    }
+
+    private void UpdateSettingsFolderDisplay()
+    {
+        if (BtnSettingsBrowseFolder == null) return;
+        string? current = _wallpaperManager.CurrentFolderPath ?? _settingsManager.Settings.WallpaperDirectory;
+        if (!string.IsNullOrWhiteSpace(current))
+        {
+            BtnSettingsBrowseFolder.ToolTip = $"Folder: {current}";
+        }
+        else
+        {
+            BtnSettingsBrowseFolder.ToolTip = @"Default Windows Wallpapers (C:\Windows\Web\Wallpaper)";
+        }
+    }
+
+    // =========================================================================
+    // SETTINGS FLYOUT & THEME MANAGEMENT
+    // =========================================================================
+
+    private void BtnSettings_Click(object sender, RoutedEventArgs e)
+    {
+        if (SettingsPopup == null) return;
+
+        if (SettingsPopup.IsOpen)
+        {
+            SettingsPopup.IsOpen = false;
+            return;
+        }
+
+        // If the popup was just closed within 250ms (e.g. by clicking on this button while open),
+        // don't immediately reopen it.
+        if ((DateTime.UtcNow - _lastSettingsPopupClosedTime).TotalMilliseconds < 250)
+        {
+            return;
+        }
+
+        var btn = sender as FrameworkElement ?? (HorizontalLayout.Visibility == Visibility.Visible ? (FrameworkElement)BtnSettingsH : (FrameworkElement)BtnSettingsV);
+
+        // Target CardBorder for rock-solid popup anchoring, preventing WPF button-capture auto-close issues
+        SettingsPopup.PlacementTarget = CardBorder;
+
+        const double popupTotalWidth = 310.0;
+        const double popupTotalHeight = 220.0;
+
+        double btnCenterX = CardBorder.ActualWidth - 75.0;
+        double btnCenterY = CardBorder.ActualHeight / 2.0;
+
+        if (btn != null)
+        {
+            try
+            {
+                Point p = btn.TranslatePoint(new Point(0, 0), CardBorder);
+                btnCenterX = p.X + (btn.ActualWidth > 0 ? btn.ActualWidth / 2.0 : 35.0);
+                btnCenterY = p.Y + (btn.ActualHeight > 0 ? btn.ActualHeight / 2.0 : 16.0);
+            }
+            catch
+            {
+                // Fallback to approximate button center if TranslatePoint fails
+            }
+        }
+
+        switch (_currentEdge)
+        {
+            case ScreenEdge.TopMiddle:
+            {
+                SettingsPopup.Placement = PlacementMode.Bottom;
+                double hOffset = btnCenterX - (popupTotalWidth / 2.0);
+                double maxHOffset = Math.Max(0, CardBorder.ActualWidth - popupTotalWidth + 10);
+                if (hOffset > maxHOffset) hOffset = maxHOffset;
+                if (hOffset < 0) hOffset = 0;
+                SettingsPopup.HorizontalOffset = hOffset;
+                SettingsPopup.VerticalOffset = -3;
+                break;
+            }
+
+            case ScreenEdge.BottomMiddle:
+            {
+                SettingsPopup.Placement = PlacementMode.Top;
+                double hOffset = btnCenterX - (popupTotalWidth / 2.0);
+                double maxHOffset = Math.Max(0, CardBorder.ActualWidth - popupTotalWidth + 10);
+                if (hOffset > maxHOffset) hOffset = maxHOffset;
+                if (hOffset < 0) hOffset = 0;
+                SettingsPopup.HorizontalOffset = hOffset;
+                SettingsPopup.VerticalOffset = 3;
+                break;
+            }
+
+            case ScreenEdge.LeftMiddle:
+            {
+                SettingsPopup.Placement = PlacementMode.Right;
+                double vOffset = btnCenterY - (popupTotalHeight / 2.0);
+                double maxVOffset = Math.Max(0, CardBorder.ActualHeight - popupTotalHeight + 10);
+                if (vOffset > maxVOffset) vOffset = maxVOffset;
+                if (vOffset < 0) vOffset = 0;
+                SettingsPopup.HorizontalOffset = 3;
+                SettingsPopup.VerticalOffset = vOffset;
+                break;
+            }
+
+            case ScreenEdge.RightMiddle:
+            {
+                SettingsPopup.Placement = PlacementMode.Left;
+                double vOffset = btnCenterY - (popupTotalHeight / 2.0);
+                double maxVOffset = Math.Max(0, CardBorder.ActualHeight - popupTotalHeight + 10);
+                if (vOffset > maxVOffset) vOffset = maxVOffset;
+                if (vOffset < 0) vOffset = 0;
+                SettingsPopup.HorizontalOffset = -3;
+                SettingsPopup.VerticalOffset = vOffset;
+                break;
+            }
+
+            default:
+            {
+                SettingsPopup.Placement = PlacementMode.Bottom;
+                double hOffset = btnCenterX - (popupTotalWidth / 2.0);
+                double maxHOffset = Math.Max(0, CardBorder.ActualWidth - popupTotalWidth + 10);
+                if (hOffset > maxHOffset) hOffset = maxHOffset;
+                if (hOffset < 0) hOffset = 0;
+                SettingsPopup.HorizontalOffset = hOffset;
+                SettingsPopup.VerticalOffset = -3;
+                break;
+            }
+        }
+
+        _isUpdatingUi = true;
+        try
+        {
+            if (CmbSettingsTheme != null)
+            {
+                CmbSettingsTheme.SelectedIndex = (int)_settingsManager.Settings.ThemeMode;
+            }
+
+            if (CmbSettingsPosition != null)
+            {
+                CmbSettingsPosition.SelectedIndex = _currentEdge switch
+                {
+                    ScreenEdge.TopMiddle => 0,
+                    ScreenEdge.BottomMiddle => 1,
+                    ScreenEdge.LeftMiddle => 2,
+                    ScreenEdge.RightMiddle => 3,
+                    _ => 0
+                };
+            }
+
+            UpdateSettingsFolderDisplay();
+        }
+        finally
+        {
+            _isUpdatingUi = false;
+        }
+
+        SettingsPopup.IsOpen = true;
+    }
+
+    private void BtnCloseSettings_Click(object sender, RoutedEventArgs e)
+    {
+        if (SettingsPopup != null)
+        {
+            SettingsPopup.IsOpen = false;
+        }
+    }
+
+    private void SettingsPopup_Opened(object? sender, EventArgs e)
+    {
+        _hideDelayTimer.Stop();
+    }
+
+    private void SettingsPopup_Closed(object? sender, EventArgs e)
+    {
+        _lastSettingsPopupClosedTime = DateTime.UtcNow;
+        if (!IsPinned && !IsMouseOver)
+        {
+            _hideDelayTimer.Stop();
+            _hideDelayTimer.Start();
+        }
+    }
+
+    private void CmbSettingsTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded || _isUpdatingUi) return;
+
+        if (CmbSettingsTheme == null || CmbSettingsTheme.SelectedIndex < 0) return;
+
+        var selectedTheme = (AppThemeMode)CmbSettingsTheme.SelectedIndex;
+        ApplyTheme(selectedTheme, _wallpaperManager.CurrentImagePath);
+        _settingsManager.UpdateThemeMode(selectedTheme);
+    }
+
+    private void CmbSettingsPosition_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded || _isUpdatingUi) return;
+
+        if (CmbSettingsPosition == null || CmbSettingsPosition.SelectedIndex < 0) return;
+
+        var edge = CmbSettingsPosition.SelectedIndex switch
+        {
+            0 => ScreenEdge.TopMiddle,
+            1 => ScreenEdge.BottomMiddle,
+            2 => ScreenEdge.LeftMiddle,
+            3 => ScreenEdge.RightMiddle,
+            _ => ScreenEdge.TopMiddle
+        };
+
+        if (edge != _currentEdge)
+        {
+            if (SettingsPopup != null && SettingsPopup.IsOpen)
+            {
+                SettingsPopup.IsOpen = false;
+            }
+
+            SetScreenEdge(edge);
+            _settingsManager.UpdateDockEdge(edge.ToString());
+        }
+    }
+
+    public void ApplyTheme(AppThemeMode themeMode, string? currentWallpaperPath = null)
+    {
+        switch (themeMode)
+        {
+            case AppThemeMode.Light:
+                ApplyLightPalette();
+                break;
+            case AppThemeMode.Dark:
+                ApplyDarkPalette();
+                break;
+            case AppThemeMode.Adaptive:
+                ApplyAdaptivePalette(currentWallpaperPath);
+                break;
+        }
+    }
+
+    private void ApplyLightPalette()
+    {
+        UpdateGradientBrush("MicaBackdropBrush", Color.FromArgb(244, 248, 250, 252), Color.FromArgb(232, 241, 245, 249));
+        UpdateGradientBrush("MicaBorderBrush", Color.FromRgb(203, 213, 225), Color.FromRgb(148, 163, 184));
+        UpdateGradientBrush("MicaInnerSheenBrush", Color.FromArgb(144, 255, 255, 255), Color.FromArgb(0, 255, 255, 255));
+
+        UpdateSolidBrush("BtnBgBrush", Color.FromRgb(255, 255, 255));
+        UpdateSolidBrush("BtnHoverBgBrush", Color.FromRgb(241, 245, 249));
+        UpdateSolidBrush("BtnPressedBgBrush", Color.FromRgb(226, 232, 240));
+        UpdateSolidBrush("BtnBorderBrush", Color.FromRgb(209, 213, 219));
+        UpdateSolidBrush("BtnHoverBorderBrush", Color.FromRgb(148, 163, 184));
+
+        UpdateSolidBrush("TextPrimaryBrush", Color.FromRgb(15, 23, 42));
+        UpdateSolidBrush("TextSecondaryBrush", Color.FromRgb(71, 85, 105));
+        UpdateSolidBrush("TextTertiaryBrush", Color.FromRgb(148, 163, 184));
+        UpdateSolidBrush("DividerBrush", Color.FromRgb(203, 213, 225));
+        UpdateSolidBrush("MenuBgBrush", Color.FromRgb(255, 255, 255));
+
+        if (CardShadow != null)
+        {
+            CardShadow.Color = Color.FromRgb(15, 23, 42);
+            CardShadow.Opacity = 0.14;
+        }
+    }
+
+    private void ApplyDarkPalette()
+    {
+        UpdateGradientBrush("MicaBackdropBrush", Color.FromArgb(240, 30, 34, 42), Color.FromArgb(232, 20, 23, 30));
+        UpdateGradientBrush("MicaBorderBrush", Color.FromRgb(55, 65, 81), Color.FromRgb(31, 41, 55));
+        UpdateGradientBrush("MicaInnerSheenBrush", Color.FromArgb(25, 255, 255, 255), Color.FromArgb(0, 255, 255, 255));
+
+        UpdateSolidBrush("BtnBgBrush", Color.FromRgb(38, 43, 53));
+        UpdateSolidBrush("BtnHoverBgBrush", Color.FromRgb(55, 65, 81));
+        UpdateSolidBrush("BtnPressedBgBrush", Color.FromRgb(26, 29, 36));
+        UpdateSolidBrush("BtnBorderBrush", Color.FromRgb(75, 85, 99));
+        UpdateSolidBrush("BtnHoverBorderBrush", Color.FromRgb(107, 114, 128));
+
+        UpdateSolidBrush("TextPrimaryBrush", Color.FromRgb(249, 250, 251));
+        UpdateSolidBrush("TextSecondaryBrush", Color.FromRgb(156, 163, 175));
+        UpdateSolidBrush("TextTertiaryBrush", Color.FromRgb(107, 114, 128));
+        UpdateSolidBrush("DividerBrush", Color.FromRgb(55, 65, 81));
+        UpdateSolidBrush("MenuBgBrush", Color.FromRgb(30, 35, 45));
+
+        if (CardShadow != null)
+        {
+            CardShadow.Color = Color.FromRgb(0, 0, 0);
+            CardShadow.Opacity = 0.45;
+        }
+    }
+
+    private void ApplyAdaptivePalette(string? imagePath)
+    {
+        var palette = WallpaperColorExtractor.ExtractPalette(imagePath);
+
+        UpdateGradientBrush("MicaBackdropBrush", palette.BackdropTop, palette.BackdropBottom);
+        UpdateGradientBrush("MicaBorderBrush", palette.BorderTop, palette.BorderBottom);
+        UpdateGradientBrush("MicaInnerSheenBrush", palette.InnerSheenTop, palette.InnerSheenBottom);
+
+        UpdateSolidBrush("BtnBgBrush", palette.ButtonBg);
+        UpdateSolidBrush("BtnHoverBgBrush", palette.ButtonHoverBg);
+        UpdateSolidBrush("BtnPressedBgBrush", palette.ButtonPressedBg);
+        UpdateSolidBrush("BtnBorderBrush", palette.ButtonBorder);
+        UpdateSolidBrush("BtnHoverBorderBrush", palette.ButtonHoverBorder);
+
+        UpdateSolidBrush("TextPrimaryBrush", palette.TextPrimary);
+        UpdateSolidBrush("TextSecondaryBrush", palette.TextSecondary);
+        UpdateSolidBrush("TextTertiaryBrush", palette.TextTertiary);
+        UpdateSolidBrush("DividerBrush", palette.Divider);
+
+        Color menuBg = palette.IsDark
+            ? Color.FromRgb(palette.BackdropBottom.R, palette.BackdropBottom.G, palette.BackdropBottom.B)
+            : Color.FromRgb(255, 255, 255);
+        UpdateSolidBrush("MenuBgBrush", menuBg);
+
+        if (CardShadow != null)
+        {
+            CardShadow.Color = palette.ShadowColor;
+            CardShadow.Opacity = palette.ShadowOpacity;
+        }
+    }
+
+    private void UpdateSolidBrush(string key, Color color)
+    {
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        Resources[key] = brush;
+    }
+
+    private void UpdateGradientBrush(string key, Color stop1, Color stop2)
+    {
+        var grad = new LinearGradientBrush(stop1, stop2, new Point(0, 0), new Point(0, 1));
+        grad.Freeze();
+        Resources[key] = grad;
     }
 }

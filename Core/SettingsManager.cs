@@ -124,4 +124,13 @@ public class SettingsManager
         _settings.WallpaperStyle = style;
         Save();
     }
+
+    /// <summary>
+    /// Updates the saved theme mode and saves settings.
+    /// </summary>
+    public void UpdateThemeMode(AppThemeMode themeMode)
+    {
+        _settings.ThemeMode = themeMode;
+        Save();
+    }
 }

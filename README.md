@@ -2,7 +2,7 @@
 
 [![Platform: Windows 11 / 10](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-0078D4?logo=windows&logoColor=white)](https://microsoft.com)
 [![Framework: .NET 10 WPF](https://img.shields.io/badge/.NET-10.0%20WPF-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
-[![Tests: 26 Passing](https://img.shields.io/badge/Tests-26%20Passed-brightgreen?logo=xunit)](Tests/WallChange.Tests)
+[![Tests: 32 Passing](https://img.shields.io/badge/Tests-32%20Passed-brightgreen?logo=xunit)](Tests/WallChange.Tests)
 [![Design: Fluent Mica](https://img.shields.io/badge/Design-Fluent%20%2F%20Mica-gray?logo=fluent-design)](https://learn.microsoft.com/en-us/windows/apps/design/)
 
 **WallChange** is a modern, lightweight, and unobtrusive Windows 11 desktop wallpaper changer. Designed to stay completely out of your way while you work, it docks discreetly along any screen edge and slides in smoothly only when your cursor approaches the edge of an unobstructed desktop surface.
@@ -15,10 +15,11 @@
   Unlike standard overlays that interrupt your workflow, WallChange continuously evaluates window focus and surface occlusion using low-level Win32 hooks (`SetWinEventHook`, `GetForegroundWindow`, `WindowFromPoint`). The dock **only slides in when the desktop is visible and unobstructed**.
 - **🖥️ Multi-Monitor & Virtual Desktop Aware**  
   Detects cursor coordinates across multi-monitor setups dynamically (`MonitorFromPoint`), respects per-display DPI scaling, and filters out cloaked windows (`DWMWA_CLOAKED`) across Windows 11 Virtual Desktops.
-- **🎨 Windows 11 Fluent & Mica Aesthetic**  
-  Crafted with a clean frosted grey-white backdrop, subtle border gradients, rounded corners, soft drop shadows, and modern vector iconography. Features responsive dual layouts:
-  - **Horizontal Dock** when anchored to **Top-Middle** or **Bottom-Middle**.
-  - **Vertical Dock** when anchored to **Left-Middle** or **Right-Middle**.
+- **🎨 Windows 11 Fluent & Mica Aesthetic with Theme Customization**  
+  Crafted with clean frosted backdrops, subtle border gradients, rounded corners, soft drop shadows, and modern vector iconography. Features a dedicated Settings flyout with three distinct themes:
+  - **Light Mode:** Crisp frosted grey-white mica aesthetic.
+  - **Dark Mode:** Deep slate & charcoal mica styling.
+  - **Adaptive Mode:** Dynamically extracts dominant hues, luminance, and contrast-safe accent colors directly from the active wallpaper.
 - **📌 Edge Snapping & Pinning**  
   Snap the dock to any of the 4 screen edges on the fly. Need quick, persistent access while testing wallpapers? Toggle the pushpin to keep the dock pinned open.
 - **🖼️ Comprehensive Wallpaper Control**  
@@ -27,9 +28,9 @@
   - Broad format support: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`, `.jfif`, `.tiff`, `.tif`.
   - Native wallpaper scaling options: *Fill*, *Fit*, *Stretch*, *Tile*, *Center*, and *Span*.
 - **💾 Automatic Persistence**  
-  Retains your chosen folder, last wallpaper index, dock edge placement, and pin state in `%LocalAppData%\WallChange\settings.json`.
+  Retains your chosen folder, theme preference, last wallpaper index, dock edge placement, and pin state in `%LocalAppData%\WallChange\settings.json`.
 - **🧪 Robust Test Suite**  
-  Backed by 26 automated xUnit tests covering settings persistence, edge snapping geometry, desktop detection heuristics, and folder scanning.
+  Backed by 32 automated xUnit tests covering settings persistence, theme adaptation, edge snapping geometry, desktop detection heuristics, and folder scanning.
 
 ---
 

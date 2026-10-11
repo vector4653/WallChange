@@ -16,7 +16,7 @@
         SizeChanged="Window_SizeChanged">
 
     <Window.Resources>
-        <!-- Windows 11 Fluent Grey-White Palette -->
+        <!-- Windows 11 Fluent Grey-White Palette (Default Light) -->
         <LinearGradientBrush x:Key="MicaBackdropBrush" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#F4F8FAFC" Offset="0.0" />
             <GradientStop Color="#E8F1F5F9" Offset="1.0" />
@@ -32,7 +32,7 @@
             <GradientStop Color="#00FFFFFF" Offset="0.5" />
         </LinearGradientBrush>
 
-        <!-- Button Brushes (Clean Grey-White, No Blue) -->
+        <!-- Button Brushes -->
         <SolidColorBrush x:Key="BtnBgBrush" Color="#FFFFFF" />
         <SolidColorBrush x:Key="BtnHoverBgBrush" Color="#F1F5F9" />
         <SolidColorBrush x:Key="BtnPressedBgBrush" Color="#E2E8F0" />
@@ -44,12 +44,13 @@
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="#475569" />
         <SolidColorBrush x:Key="TextTertiaryBrush" Color="#94A3B8" />
         <SolidColorBrush x:Key="DividerBrush" Color="#CBD5E1" />
+        <SolidColorBrush x:Key="MenuBgBrush" Color="#FFFFFF" />
 
-        <!-- Base Fluent Button Style (Grey-White) -->
+        <!-- Base Fluent Button Style -->
         <Style x:Key="FluentButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BtnBgBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="9,6" />
             <Setter Property="FontSize" Value="11.5" />
@@ -69,11 +70,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="{StaticResource BtnHoverBorderBrush}" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource BtnPressedBgBrush}" />
                                 <Setter TargetName="btnBorder" Property="BorderBrush" Value="#64748B" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -85,12 +86,12 @@
             </Setter>
         </Style>
 
-        <!-- Pushpin Toggle Style (Grey-White) -->
+        <!-- Pushpin Toggle Style -->
         <Style x:Key="FluentPinToggle" TargetType="ToggleButton">
             <Setter Property="Width" Value="30" />
             <Setter Property="Height" Value="30" />
-            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BtnBgBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -103,10 +104,9 @@
                                 CornerRadius="8"
                                 SnapsToDevicePixels="True">
                             <Viewbox Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <!-- Modern Pin SVG Vector -->
                                 <Path x:Name="pinPath"
                                       Data="M 7,1 L 9,3 L 7,5 L 8,9 L 4,9 L 5,5 L 3,3 Z M 6,9 L 6,14"
-                                      Stroke="{StaticResource TextSecondaryBrush}"
+                                      Stroke="{DynamicResource TextSecondaryBrush}"
                                       StrokeThickness="1.4"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round"
@@ -116,15 +116,15 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="pinBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
-                                <Setter TargetName="pinBorder" Property="BorderBrush" Value="{StaticResource BtnHoverBorderBrush}" />
-                                <Setter TargetName="pinPath" Property="Stroke" Value="{StaticResource TextPrimaryBrush}" />
+                                <Setter TargetName="pinBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                                <Setter TargetName="pinBorder" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
+                                <Setter TargetName="pinPath" Property="Stroke" Value="{DynamicResource TextPrimaryBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="pinBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
+                                <Setter TargetName="pinBorder" Property="Background" Value="{DynamicResource BtnPressedBgBrush}" />
                                 <Setter TargetName="pinBorder" Property="BorderBrush" Value="#64748B" />
-                                <Setter TargetName="pinPath" Property="Stroke" Value="{StaticResource TextPrimaryBrush}" />
-                                <Setter TargetName="pinPath" Property="Fill" Value="{StaticResource TextTertiaryBrush}" />
+                                <Setter TargetName="pinPath" Property="Stroke" Value="{DynamicResource TextPrimaryBrush}" />
+                                <Setter TargetName="pinPath" Property="Fill" Value="{DynamicResource TextTertiaryBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -132,46 +132,196 @@
             </Setter>
         </Style>
 
-        <!-- Modern ComboBox Style (Grey-White) -->
+        <!-- Modern ComboBox Style -->
         <Style x:Key="FluentComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
-            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BtnBgBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Padding" Value="10,6" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI, sans-serif" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
+                            <ToggleButton x:Name="ToggleButton"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Focusable="False"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="btnRoot"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="7"
+                                                SnapsToDevicePixels="True">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="22" />
+                                                </Grid.ColumnDefinitions>
+                                                <Viewbox Grid.Column="1" Width="8" Height="8" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <Path x:Name="chevron"
+                                                          Data="M 1,1.5 L 4.5,5 L 8,1.5"
+                                                          Stroke="{DynamicResource TextSecondaryBrush}"
+                                                          StrokeThickness="1.6"
+                                                          StrokeStartLineCap="Round"
+                                                          StrokeEndLineCap="Round" />
+                                                </Viewbox>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="btnRoot" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                                                <Setter TargetName="btnRoot" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
+                                                <Setter TargetName="chevron" Property="Stroke" Value="{DynamicResource TextPrimaryBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="btnRoot" Property="Background" Value="{DynamicResource BtnPressedBgBrush}" />
+                                                <Setter TargetName="btnRoot" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
+                                                <Setter TargetName="chevron" Property="Stroke" Value="{DynamicResource TextPrimaryBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <ContentPresenter x:Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   IsOpen="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Placement="Bottom"
+                                   Focusable="False"
+                                   PopupAnimation="Fade">
+                                <Grid x:Name="DropDown"
+                                      MinWidth="{Binding ActualWidth, ElementName=MainGrid}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                      SnapsToDevicePixels="True"
+                                      Margin="0,3,0,6">
+                                    <Border x:Name="DropDownBorder"
+                                            Background="{DynamicResource MenuBgBrush}"
+                                            BorderBrush="{DynamicResource MicaBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="4">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="16"
+                                                              Color="#000000"
+                                                              Opacity="0.32"
+                                                              ShadowDepth="3"
+                                                              Direction="270" />
+                                        </Border.Effect>
+                                        <ScrollViewer SnapsToDevicePixels="True" CanContentScroll="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
                         <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-                        <Setter Property="Padding" Value="8,5" />
+                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                        <Setter Property="Padding" Value="9,6" />
                         <Setter Property="FontSize" Value="11" />
+                        <Setter Property="Cursor" Value="Hand" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ComboBoxItem">
                                     <Border x:Name="itemBorder"
                                             Background="{TemplateBinding Background}"
+                                            BorderBrush="Transparent"
+                                            BorderThickness="1"
                                             Padding="{TemplateBinding Padding}"
-                                            CornerRadius="5"
-                                            Margin="2,1">
-                                        <ContentPresenter />
+                                            CornerRadius="6"
+                                            Margin="1,1">
+                                        <ContentPresenter HorizontalAlignment="Left"
+                                                          VerticalAlignment="Center">
+                                            <ContentPresenter.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                </Style>
+                                            </ContentPresenter.Resources>
+                                        </ContentPresenter>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
+                                            <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
                                         </Trigger>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                            <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                                            <Setter TargetName="itemBorder" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Implicit ComboBoxItem style to guarantee theming for direct XAML items -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="Padding" Value="9,6" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="itemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="6"
+                                Margin="1,1">
+                            <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource BtnHoverBgBrush}" />
+                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{DynamicResource BtnHoverBorderBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -185,8 +335,8 @@
 
         <!-- Outer Card Container with Soft Shadow -->
         <Border x:Name="CardBorder"
-                Background="{StaticResource MicaBackdropBrush}"
-                BorderBrush="{StaticResource MicaBorderBrush}"
+                Background="{DynamicResource MicaBackdropBrush}"
+                BorderBrush="{DynamicResource MicaBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="13"
                 SnapsToDevicePixels="True">
@@ -200,7 +350,7 @@
             </Border.Effect>
 
             <!-- Inner Subtle Sheen Border -->
-            <Border BorderBrush="{StaticResource MicaInnerSheenBrush}"
+            <Border BorderBrush="{DynamicResource MicaInnerSheenBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     SnapsToDevicePixels="True">
@@ -215,7 +365,7 @@
                                     Width="30"
                                     Height="30"
                                     Margin="0,0,10,0"
-                                    BorderBrush="{StaticResource BtnBorderBrush}"
+                                    BorderBrush="{DynamicResource BtnBorderBrush}"
                                     BorderThickness="1">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -224,9 +374,8 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
                                 <Viewbox Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <!-- Photo/Wallpaper Vector Glyph -->
                                     <Path Data="M 1,3 C 1,1.9 1.9,1 3,1 L 13,1 C 14.1,1 15,1.9 15,3 L 15,13 C 15,14.1 14.1,15 13,15 L 3,15 C 1.9,15 1,14.1 1,13 Z M 3,12 L 13,12 L 9.5,7.5 L 7,10.5 L 5.5,8.5 Z M 5,4.5 C 5,5.3 4.3,6 3.5,6 C 2.7,6 2,5.3 2,4.5 C 2,3.7 2.7,3 3.5,3 C 4.3,3 5,3.7 5,4.5 Z"
-                                          Fill="{StaticResource TextSecondaryBrush}" />
+                                          Fill="{DynamicResource TextSecondaryBrush}" />
                                 </Viewbox>
                             </Border>
 
@@ -236,25 +385,25 @@
                                            Text="No Folder Selected"
                                            FontWeight="SemiBold"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis" />
                                 <TextBlock x:Name="TxtWallpaperIndexH"
-                                           Text="Click Browse Folder"
+                                           Text="Click Settings to pick folder"
                                            FontSize="10.5"
-                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                             </StackPanel>
 
                             <!-- Playback Action Controls -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <!-- Previous Button -->
                                 <Button ToolTip="Previous Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         Margin="0,0,5,0"
                                         Click="BtnPrevious_Click">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Viewbox Width="9" Height="9" Margin="0,0,5,0">
                                             <Path Data="M 7,1 L 2,6 L 7,11"
-                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  Stroke="{DynamicResource TextPrimaryBrush}"
                                                   StrokeThickness="1.8"
                                                   StrokeStartLineCap="Round"
                                                   StrokeEndLineCap="Round" />
@@ -263,16 +412,16 @@
                                     </StackPanel>
                                 </Button>
 
-                                <!-- Next Button (Clean Grey-White, No Blue) -->
+                                <!-- Next Button -->
                                 <Button ToolTip="Next Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         Margin="0,0,5,0"
                                         Click="BtnNext_Click">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="Next" VerticalAlignment="Center" Margin="0,0,5,0" />
                                         <Viewbox Width="9" Height="9">
                                             <Path Data="M 2,1 L 7,6 L 2,11"
-                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  Stroke="{DynamicResource TextPrimaryBrush}"
                                                   StrokeThickness="1.8"
                                                   StrokeStartLineCap="Round"
                                                   StrokeEndLineCap="Round" />
@@ -282,68 +431,46 @@
 
                                 <!-- Random Shuffle Button -->
                                 <Button ToolTip="Random Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         Margin="0,0,5,0"
                                         Click="BtnRandom_Click">
                                     <Viewbox Width="13" Height="13">
-                                        <!-- Shuffle Vector -->
                                         <Path Data="M 2,3 L 6,3 L 10,11 L 14,11 M 12,9 L 14,11 L 12,13 M 2,11 L 6,11 L 8,7 M 10,3 L 14,3 M 12,1 L 14,3 L 12,5"
-                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              Stroke="{DynamicResource TextPrimaryBrush}"
                                               StrokeThickness="1.5"
                                               StrokeStartLineCap="Round"
                                               StrokeEndLineCap="Round"
                                               StrokeLineJoin="Round" />
                                     </Viewbox>
                                 </Button>
-
-                                <!-- Folder Browse Button -->
-                                <Button ToolTip="Select Wallpapers Folder"
-                                        Style="{StaticResource FluentButton}"
-                                        Margin="0,0,9,0"
-                                        Click="BtnBrowse_Click">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Viewbox Width="12" Height="12" Margin="0,0,5,0">
-                                            <!-- Folder Vector -->
-                                            <Path Data="M 1,3 C 1,2 2,1 3,1 L 5.5,1 L 7.5,3 L 12.5,3 C 13.5,3 14.5,4 14.5,5 L 14.5,11 C 14.5,12 13.5,13 12.5,13 L 2.5,13 C 1.5,13 1,12 1,11 Z"
-                                                  Stroke="{StaticResource TextPrimaryBrush}"
-                                                  StrokeThickness="1.4"
-                                                  StrokeLineJoin="Round"
-                                                  Fill="{StaticResource BtnHoverBgBrush}" />
-                                        </Viewbox>
-                                        <TextBlock Text="Folder" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Button>
                             </StackPanel>
 
                             <!-- Modern Vertical Divider -->
                             <Rectangle Width="1"
                                        Height="20"
-                                       Fill="{StaticResource DividerBrush}"
-                                       Margin="0,0,9,0" />
+                                       Fill="{DynamicResource DividerBrush}"
+                                       Margin="0,0,7,0" />
 
-                            <!-- Edge Position Selector -->
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="Position:"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           FontSize="11"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,6,0" />
-                                <ComboBox x:Name="CmbPositionH"
-                                          Width="110"
-                                          Style="{StaticResource FluentComboBox}"
-                                          SelectionChanged="CmbPosition_SelectionChanged">
-                                    <ComboBoxItem Content="Top-Middle" />
-                                    <ComboBoxItem Content="Bottom-Middle" />
-                                    <ComboBoxItem Content="Left-Middle" />
-                                    <ComboBoxItem Content="Right-Middle" />
-                                </ComboBox>
-                            </StackPanel>
+                            <!-- Settings Button -->
+                            <Button x:Name="BtnSettingsH"
+                                    ToolTip="Settings (Theme, Folder, Position)"
+                                    Style="{DynamicResource FluentButton}"
+                                    Margin="0,0,7,0"
+                                    Click="BtnSettings_Click">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Viewbox Width="12" Height="12" Margin="0,0,5,0">
+                                        <Path Data="M 8.5,1.5 L 9.6,3.4 C 10.1,3.6 10.6,3.9 11.0,4.3 L 13.1,3.8 L 14.1,5.5 L 12.5,7.0 C 12.6,7.5 12.6,8.0 12.5,8.5 L 14.1,10.0 L 13.1,11.7 L 11.0,11.2 C 10.6,11.6 10.1,11.9 9.6,12.1 L 8.5,14 L 6.5,14 L 5.4,12.1 C 4.9,11.9 4.4,11.6 4.0,11.2 L 1.9,11.7 L 0.9,10.0 L 2.5,8.5 C 2.4,8.0 2.4,7.5 2.5,7.0 L 0.9,5.5 L 1.9,3.8 L 4.0,4.3 C 4.4,3.9 4.9,3.6 5.4,3.4 L 6.5,1.5 Z M 7.5,5.5 C 6.1,5.5 5.0,6.6 5.0,8.0 C 5.0,9.4 6.1,10.5 7.5,10.5 C 8.9,10.5 10.0,9.4 10.0,8.0 C 10.0,6.6 8.9,5.5 7.5,5.5 Z"
+                                              Fill="{DynamicResource TextPrimaryBrush}" />
+                                    </Viewbox>
+                                    <TextBlock Text="Settings" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
 
                             <!-- Pin Panel Toggle -->
                             <ToggleButton x:Name="TglPinH"
                                           ToolTip="Pin Panel Open"
-                                          Margin="7,0,0,0"
-                                          Style="{StaticResource FluentPinToggle}"
+                                          Margin="0,0,0,0"
+                                          Style="{DynamicResource FluentPinToggle}"
                                           Checked="TglPin_Changed"
                                           Unchecked="TglPin_Changed" />
                         </StackPanel>
@@ -359,7 +486,7 @@
                                     Height="30"
                                     HorizontalAlignment="Center"
                                     Margin="0,2,0,5"
-                                    BorderBrush="{StaticResource BtnBorderBrush}"
+                                    BorderBrush="{DynamicResource BtnBorderBrush}"
                                     BorderThickness="1">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -369,7 +496,7 @@
                                 </Border.Background>
                                 <Viewbox Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Path Data="M 1,3 C 1,1.9 1.9,1 3,1 L 13,1 C 14.1,1 15,1.9 15,3 L 15,13 C 15,14.1 14.1,15 13,15 L 3,15 C 1.9,15 1,14.1 1,13 Z M 3,12 L 13,12 L 9.5,7.5 L 7,10.5 L 5.5,8.5 Z M 5,4.5 C 5,5.3 4.3,6 3.5,6 C 2.7,6 2,5.3 2,4.5 C 2,3.7 2.7,3 3.5,3 C 4.3,3 5,3.7 5,4.5 Z"
-                                          Fill="{StaticResource TextSecondaryBrush}" />
+                                          Fill="{DynamicResource TextSecondaryBrush}" />
                                 </Viewbox>
                             </Border>
 
@@ -377,16 +504,16 @@
                                        Text="No Folder"
                                        FontWeight="SemiBold"
                                        FontSize="11.5"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,1" />
 
                             <TextBlock x:Name="TxtWallpaperIndexV"
-                                       Text="Browse Folder"
+                                       Text="Pick Folder in Settings"
                                        FontSize="10"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextAlignment="Center"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,8" />
@@ -401,12 +528,12 @@
 
                                 <Button Grid.Column="0"
                                         ToolTip="Previous Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         HorizontalAlignment="Stretch"
                                         Click="BtnPrevious_Click">
                                     <Viewbox Width="9" Height="9">
                                         <Path Data="M 7,1 L 2,6 L 7,11"
-                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              Stroke="{DynamicResource TextPrimaryBrush}"
                                               StrokeThickness="1.8"
                                               StrokeStartLineCap="Round"
                                               StrokeEndLineCap="Round" />
@@ -415,12 +542,12 @@
 
                                 <Button Grid.Column="2"
                                         ToolTip="Next Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         HorizontalAlignment="Stretch"
                                         Click="BtnNext_Click">
                                     <Viewbox Width="9" Height="9">
                                         <Path Data="M 2,1 L 7,6 L 2,11"
-                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              Stroke="{DynamicResource TextPrimaryBrush}"
                                               StrokeThickness="1.8"
                                               StrokeStartLineCap="Round"
                                               StrokeEndLineCap="Round" />
@@ -428,22 +555,22 @@
                                 </Button>
                             </Grid>
 
-                            <!-- Random & Folder Row -->
+                            <!-- Random & Settings Row -->
                             <Grid Margin="0,0,0,7">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="38" />
+                                    <ColumnDefinition Width="36" />
                                     <ColumnDefinition Width="4" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
                                 <Button Grid.Column="0"
                                         ToolTip="Random Wallpaper"
-                                        Style="{StaticResource FluentButton}"
+                                        Style="{DynamicResource FluentButton}"
                                         HorizontalAlignment="Stretch"
                                         Click="BtnRandom_Click">
                                     <Viewbox Width="12" Height="12">
                                         <Path Data="M 2,3 L 6,3 L 10,11 L 14,11 M 12,9 L 14,11 L 12,13 M 2,11 L 6,11 L 8,7 M 10,3 L 14,3 M 12,1 L 14,3 L 12,5"
-                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              Stroke="{DynamicResource TextPrimaryBrush}"
                                               StrokeThickness="1.5"
                                               StrokeStartLineCap="Round"
                                               StrokeEndLineCap="Round" />
@@ -451,51 +578,38 @@
                                 </Button>
 
                                 <Button Grid.Column="2"
-                                        ToolTip="Select Folder"
-                                        Style="{StaticResource FluentButton}"
+                                        x:Name="BtnSettingsV"
+                                        ToolTip="Settings (Theme, Folder, Position)"
+                                        Style="{DynamicResource FluentButton}"
                                         HorizontalAlignment="Stretch"
-                                        Click="BtnBrowse_Click">
+                                        Click="BtnSettings_Click">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                         <Viewbox Width="11" Height="11" Margin="0,0,4,0">
-                                            <Path Data="M 1,3 C 1,2 2,1 3,1 L 5.5,1 L 7.5,3 L 12.5,3 C 13.5,3 14.5,4 14.5,5 L 14.5,11 C 14.5,12 13.5,13 12.5,13 L 2.5,13 C 1.5,13 1,12 1,11 Z"
-                                                  Stroke="{StaticResource TextPrimaryBrush}"
-                                                  StrokeThickness="1.4"
-                                                  Fill="{StaticResource BtnHoverBgBrush}" />
+                                            <Path Data="M 8.5,1.5 L 9.6,3.4 C 10.1,3.6 10.6,3.9 11.0,4.3 L 13.1,3.8 L 14.1,5.5 L 12.5,7.0 C 12.6,7.5 12.6,8.0 12.5,8.5 L 14.1,10.0 L 13.1,11.7 L 11.0,11.2 C 10.6,11.6 10.1,11.9 9.6,12.1 L 8.5,14 L 6.5,14 L 5.4,12.1 C 4.9,11.9 4.4,11.6 4.0,11.2 L 1.9,11.7 L 0.9,10.0 L 2.5,8.5 C 2.4,8.0 2.4,7.5 2.5,7.0 L 0.9,5.5 L 1.9,3.8 L 4.0,4.3 C 4.4,3.9 4.9,3.6 5.4,3.4 L 6.5,1.5 Z M 7.5,5.5 C 6.1,5.5 5.0,6.6 5.0,8.0 C 5.0,9.4 6.1,10.5 7.5,10.5 C 8.9,10.5 10.0,9.4 10.0,8.0 C 10.0,6.6 8.9,5.5 7.5,5.5 Z"
+                                                  Fill="{DynamicResource TextPrimaryBrush}" />
                                         </Viewbox>
-                                        <TextBlock Text="Folder" VerticalAlignment="Center" FontSize="11" />
+                                        <TextBlock Text="Settings" VerticalAlignment="Center" FontSize="11" />
                                     </StackPanel>
                                 </Button>
                             </Grid>
 
                             <!-- Divider -->
                             <Rectangle Height="1"
-                                       Fill="{StaticResource DividerBrush}"
+                                       Fill="{DynamicResource DividerBrush}"
                                        HorizontalAlignment="Stretch"
                                        Margin="0,0,0,6" />
-
-                            <!-- Position Selector -->
-                            <ComboBox x:Name="CmbPositionV"
-                                      Style="{StaticResource FluentComboBox}"
-                                      HorizontalAlignment="Stretch"
-                                      Margin="0,0,0,6"
-                                      SelectionChanged="CmbPosition_SelectionChanged">
-                                <ComboBoxItem Content="Top-Middle" />
-                                <ComboBoxItem Content="Bottom-Middle" />
-                                <ComboBoxItem Content="Left-Middle" />
-                                <ComboBoxItem Content="Right-Middle" />
-                            </ComboBox>
 
                             <!-- Pin Row -->
                             <DockPanel HorizontalAlignment="Stretch" Margin="2,0,0,2">
                                 <TextBlock Text="Pin Dock:"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="10.5"
                                            VerticalAlignment="Center" />
                                 <ToggleButton x:Name="TglPinV"
                                               DockPanel.Dock="Right"
                                               HorizontalAlignment="Right"
                                               ToolTip="Pin Panel Open"
-                                              Style="{StaticResource FluentPinToggle}"
+                                              Style="{DynamicResource FluentPinToggle}"
                                               Checked="TglPin_Changed"
                                               Unchecked="TglPin_Changed" />
                             </DockPanel>
@@ -504,5 +618,115 @@
                 </Grid>
             </Border>
         </Border>
+
+        <!-- ================= SETTINGS POPUP FLYOUT ================= -->
+        <Popup x:Name="SettingsPopup"
+               AllowsTransparency="True"
+               StaysOpen="False"
+               Opened="SettingsPopup_Opened"
+               Closed="SettingsPopup_Closed">
+            <Border Margin="10"
+                    Background="{DynamicResource MicaBackdropBrush}"
+                    BorderBrush="{DynamicResource MicaBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Width="290"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="22"
+                                      Color="#0F172A"
+                                      Opacity="0.32"
+                                      ShadowDepth="4"
+                                      Direction="270" />
+                </Border.Effect>
+
+                <Border BorderBrush="{DynamicResource MicaInnerSheenBrush}"
+                        BorderThickness="1"
+                        CornerRadius="11"
+                        Padding="14,12">
+                    <StackPanel Orientation="Vertical">
+
+                        <!-- Header: Title & Close Button -->
+                        <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Viewbox Width="13" Height="13" Margin="0,0,6,0">
+                                    <Path Data="M 8.5,1.5 L 9.6,3.4 C 10.1,3.6 10.6,3.9 11.0,4.3 L 13.1,3.8 L 14.1,5.5 L 12.5,7.0 C 12.6,7.5 12.6,8.0 12.5,8.5 L 14.1,10.0 L 13.1,11.7 L 11.0,11.2 C 10.6,11.6 10.1,11.9 9.6,12.1 L 8.5,14 L 6.5,14 L 5.4,12.1 C 4.9,11.9 4.4,11.6 4.0,11.2 L 1.9,11.7 L 0.9,10.0 L 2.5,8.5 C 2.4,8.0 2.4,7.5 2.5,7.0 L 0.9,5.5 L 1.9,3.8 L 4.0,4.3 C 4.4,3.9 4.9,3.6 5.4,3.4 L 6.5,1.5 Z M 7.5,5.5 C 6.1,5.5 5.0,6.6 5.0,8.0 C 5.0,9.4 6.1,10.5 7.5,10.5 C 8.9,10.5 10.0,9.4 10.0,8.0 C 10.0,6.6 8.9,5.5 7.5,5.5 Z"
+                                          Fill="{DynamicResource TextPrimaryBrush}" />
+                                </Viewbox>
+                                <TextBlock Text="Settings"
+                                           FontWeight="SemiBold"
+                                           FontSize="12.5"
+                                           Foreground="{DynamicResource TextPrimaryBrush}" />
+                            </StackPanel>
+
+                            <Button DockPanel.Dock="Right"
+                                    ToolTip="Close Settings"
+                                    Style="{DynamicResource FluentButton}"
+                                    Padding="7,2"
+                                    Click="BtnCloseSettings_Click">
+                                <TextBlock Text="✕" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Button>
+                        </DockPanel>
+
+                        <!-- Divider -->
+                        <Rectangle Height="1" Fill="{DynamicResource DividerBrush}" Margin="0,0,0,10" />
+
+                        <!-- 1. Theme Selection -->
+                        <TextBlock Text="Theme"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,3" />
+                        <ComboBox x:Name="CmbSettingsTheme"
+                                  Style="{DynamicResource FluentComboBox}"
+                                  Margin="0,0,0,10"
+                                  SelectionChanged="CmbSettingsTheme_SelectionChanged">
+                            <ComboBoxItem Content="Light (Frosted White)" />
+                            <ComboBoxItem Content="Dark (Slate / Charcoal)" />
+                            <ComboBoxItem Content="Adaptive (Wallpaper Match)" />
+                        </ComboBox>
+
+                        <!-- 2. Folder Selection -->
+                        <TextBlock Text="Wallpaper Folder"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,3" />
+                        <Button x:Name="BtnSettingsBrowseFolder"
+                                Style="{DynamicResource FluentButton}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,10"
+                                Click="BtnBrowse_Click">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Viewbox Width="12" Height="12" Margin="0,0,6,0">
+                                    <Path Data="M 1,3 C 1,2 2,1 3,1 L 5.5,1 L 7.5,3 L 12.5,3 C 13.5,3 14.5,4 14.5,5 L 14.5,11 C 14.5,12 13.5,13 12.5,13 L 2.5,13 C 1.5,13 1,12 1,11 Z"
+                                          Stroke="{DynamicResource TextPrimaryBrush}"
+                                          StrokeThickness="1.4"
+                                          StrokeLineJoin="Round"
+                                          Fill="{DynamicResource BtnHoverBgBrush}" />
+                                </Viewbox>
+                                <TextBlock Text="Browse Folder..." VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- 3. Screen Edge Position -->
+                        <TextBlock Text="Screen Edge Position"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,3" />
+                        <ComboBox x:Name="CmbSettingsPosition"
+                                  Style="{DynamicResource FluentComboBox}"
+                                  Margin="0,0,0,4"
+                                  SelectionChanged="CmbSettingsPosition_SelectionChanged">
+                            <ComboBoxItem Content="Top-Middle" />
+                            <ComboBoxItem Content="Bottom-Middle" />
+                            <ComboBoxItem Content="Left-Middle" />
+                            <ComboBoxItem Content="Right-Middle" />
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Popup>
     </Grid>
 </Window>

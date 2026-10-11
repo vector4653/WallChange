@@ -120,4 +120,29 @@ public class SettingsManagerTests : IDisposable
         Assert.Null(settings.WallpaperDirectory);
         Assert.Equal("TopMiddle", settings.DockEdge);
     }
+
+    [Fact]
+    public void Load_DefaultThemeMode_IsLight()
+    {
+        var manager = new SettingsManager(_settingsFilePath);
+        var settings = manager.Load();
+
+        Assert.Equal(AppThemeMode.Light, settings.ThemeMode);
+    }
+
+    [Fact]
+    public void UpdateThemeMode_PersistsDarkAndAdaptiveModes()
+    {
+        var manager = new SettingsManager(_settingsFilePath);
+        manager.UpdateThemeMode(AppThemeMode.Dark);
+
+        var reader = new SettingsManager(_settingsFilePath);
+        reader.Load();
+        Assert.Equal(AppThemeMode.Dark, reader.Settings.ThemeMode);
+
+        reader.UpdateThemeMode(AppThemeMode.Adaptive);
+        var reader2 = new SettingsManager(_settingsFilePath);
+        reader2.Load();
+        Assert.Equal(AppThemeMode.Adaptive, reader2.Settings.ThemeMode);
+    }
 }
