@@ -1,0 +1,508 @@
+<Window x:Class="WallChange.UI.MainOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WallChange Overlay"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        MouseEnter="Window_MouseEnter"
+        MouseLeave="Window_MouseLeave"
+        MouseMove="Window_MouseMove"
+        Loaded="Window_Loaded"
+        SizeChanged="Window_SizeChanged">
+
+    <Window.Resources>
+        <!-- Windows 11 Fluent Grey-White Palette -->
+        <LinearGradientBrush x:Key="MicaBackdropBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F4F8FAFC" Offset="0.0" />
+            <GradientStop Color="#E8F1F5F9" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="MicaBorderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#CBD5E1" Offset="0.0" />
+            <GradientStop Color="#94A3B8" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="MicaInnerSheenBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#90FFFFFF" Offset="0.0" />
+            <GradientStop Color="#00FFFFFF" Offset="0.5" />
+        </LinearGradientBrush>
+
+        <!-- Button Brushes (Clean Grey-White, No Blue) -->
+        <SolidColorBrush x:Key="BtnBgBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="BtnHoverBgBrush" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="BtnPressedBgBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="BtnBorderBrush" Color="#D1D5DB" />
+        <SolidColorBrush x:Key="BtnHoverBorderBrush" Color="#94A3B8" />
+
+        <!-- Typography Brushes -->
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A" />
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#475569" />
+        <SolidColorBrush x:Key="TextTertiaryBrush" Color="#94A3B8" />
+        <SolidColorBrush x:Key="DividerBrush" Color="#CBD5E1" />
+
+        <!-- Base Fluent Button Style (Grey-White) -->
+        <Style x:Key="FluentButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="9,6" />
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI, sans-serif" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="{StaticResource BtnHoverBorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#64748B" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pushpin Toggle Style (Grey-White) -->
+        <Style x:Key="FluentPinToggle" TargetType="ToggleButton">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="pinBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <Viewbox Width="13" Height="13" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <!-- Modern Pin SVG Vector -->
+                                <Path x:Name="pinPath"
+                                      Data="M 7,1 L 9,3 L 7,5 L 8,9 L 4,9 L 5,5 L 3,3 Z M 6,9 L 6,14"
+                                      Stroke="{StaticResource TextSecondaryBrush}"
+                                      StrokeThickness="1.4"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent" />
+                            </Viewbox>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="pinBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
+                                <Setter TargetName="pinBorder" Property="BorderBrush" Value="{StaticResource BtnHoverBorderBrush}" />
+                                <Setter TargetName="pinPath" Property="Stroke" Value="{StaticResource TextPrimaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="pinBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
+                                <Setter TargetName="pinBorder" Property="BorderBrush" Value="#64748B" />
+                                <Setter TargetName="pinPath" Property="Stroke" Value="{StaticResource TextPrimaryBrush}" />
+                                <Setter TargetName="pinPath" Property="Fill" Value="{StaticResource TextTertiaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern ComboBox Style (Grey-White) -->
+        <Style x:Key="FluentComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource BtnBgBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BtnBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI, sans-serif" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                        <Setter Property="Padding" Value="8,5" />
+                        <Setter Property="FontSize" Value="11" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="itemBorder"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            CornerRadius="5"
+                                            Margin="2,1">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource BtnHoverBgBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="itemBorder" Property="Background" Value="{StaticResource BtnPressedBgBrush}" />
+                                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="RootContainer" Margin="14">
+        <!-- Directional Slide-in / Slide-out Transform -->
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="PanelTransform" X="0" Y="0" />
+        </Grid.RenderTransform>
+
+        <!-- Outer Card Container with Soft Shadow -->
+        <Border x:Name="CardBorder"
+                Background="{StaticResource MicaBackdropBrush}"
+                BorderBrush="{StaticResource MicaBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="13"
+                SnapsToDevicePixels="True">
+            <Border.Effect>
+                <DropShadowEffect x:Name="CardShadow"
+                                  BlurRadius="22"
+                                  Color="#0F172A"
+                                  Opacity="0.14"
+                                  ShadowDepth="3"
+                                  Direction="270" />
+            </Border.Effect>
+
+            <!-- Inner Subtle Sheen Border -->
+            <Border BorderBrush="{StaticResource MicaInnerSheenBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    SnapsToDevicePixels="True">
+
+                <Grid Margin="11,7">
+                    <!-- ================= HORIZONTAL DOCK LAYOUT ================= -->
+                    <Grid x:Name="HorizontalLayout" Visibility="Visible">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                            <!-- App Icon Badge -->
+                            <Border CornerRadius="8"
+                                    Width="30"
+                                    Height="30"
+                                    Margin="0,0,10,0"
+                                    BorderBrush="{StaticResource BtnBorderBrush}"
+                                    BorderThickness="1">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FFFFFF" Offset="0.0" />
+                                        <GradientStop Color="#F1F5F9" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <!-- Photo/Wallpaper Vector Glyph -->
+                                    <Path Data="M 1,3 C 1,1.9 1.9,1 3,1 L 13,1 C 14.1,1 15,1.9 15,3 L 15,13 C 15,14.1 14.1,15 13,15 L 3,15 C 1.9,15 1,14.1 1,13 Z M 3,12 L 13,12 L 9.5,7.5 L 7,10.5 L 5.5,8.5 Z M 5,4.5 C 5,5.3 4.3,6 3.5,6 C 2.7,6 2,5.3 2,4.5 C 2,3.7 2.7,3 3.5,3 C 4.3,3 5,3.7 5,4.5 Z"
+                                          Fill="{StaticResource TextSecondaryBrush}" />
+                                </Viewbox>
+                            </Border>
+
+                            <!-- Wallpaper Title & Counter Info -->
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,14,0" MinWidth="130" MaxWidth="220">
+                                <TextBlock x:Name="TxtWallpaperNameH"
+                                           Text="No Folder Selected"
+                                           FontWeight="SemiBold"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock x:Name="TxtWallpaperIndexH"
+                                           Text="Click Browse Folder"
+                                           FontSize="10.5"
+                                           Foreground="{StaticResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Playback Action Controls -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- Previous Button -->
+                                <Button ToolTip="Previous Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        Margin="0,0,5,0"
+                                        Click="BtnPrevious_Click">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Viewbox Width="9" Height="9" Margin="0,0,5,0">
+                                            <Path Data="M 7,1 L 2,6 L 7,11"
+                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round" />
+                                        </Viewbox>
+                                        <TextBlock Text="Prev" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Next Button (Clean Grey-White, No Blue) -->
+                                <Button ToolTip="Next Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        Margin="0,0,5,0"
+                                        Click="BtnNext_Click">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="Next" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                        <Viewbox Width="9" Height="9">
+                                            <Path Data="M 2,1 L 7,6 L 2,11"
+                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round" />
+                                        </Viewbox>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Random Shuffle Button -->
+                                <Button ToolTip="Random Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        Margin="0,0,5,0"
+                                        Click="BtnRandom_Click">
+                                    <Viewbox Width="13" Height="13">
+                                        <!-- Shuffle Vector -->
+                                        <Path Data="M 2,3 L 6,3 L 10,11 L 14,11 M 12,9 L 14,11 L 12,13 M 2,11 L 6,11 L 8,7 M 10,3 L 14,3 M 12,1 L 14,3 L 12,5"
+                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              StrokeThickness="1.5"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round" />
+                                    </Viewbox>
+                                </Button>
+
+                                <!-- Folder Browse Button -->
+                                <Button ToolTip="Select Wallpapers Folder"
+                                        Style="{StaticResource FluentButton}"
+                                        Margin="0,0,9,0"
+                                        Click="BtnBrowse_Click">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Viewbox Width="12" Height="12" Margin="0,0,5,0">
+                                            <!-- Folder Vector -->
+                                            <Path Data="M 1,3 C 1,2 2,1 3,1 L 5.5,1 L 7.5,3 L 12.5,3 C 13.5,3 14.5,4 14.5,5 L 14.5,11 C 14.5,12 13.5,13 12.5,13 L 2.5,13 C 1.5,13 1,12 1,11 Z"
+                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  StrokeThickness="1.4"
+                                                  StrokeLineJoin="Round"
+                                                  Fill="{StaticResource BtnHoverBgBrush}" />
+                                        </Viewbox>
+                                        <TextBlock Text="Folder" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Modern Vertical Divider -->
+                            <Rectangle Width="1"
+                                       Height="20"
+                                       Fill="{StaticResource DividerBrush}"
+                                       Margin="0,0,9,0" />
+
+                            <!-- Edge Position Selector -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="Position:"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="11"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,6,0" />
+                                <ComboBox x:Name="CmbPositionH"
+                                          Width="110"
+                                          Style="{StaticResource FluentComboBox}"
+                                          SelectionChanged="CmbPosition_SelectionChanged">
+                                    <ComboBoxItem Content="Top-Middle" />
+                                    <ComboBoxItem Content="Bottom-Middle" />
+                                    <ComboBoxItem Content="Left-Middle" />
+                                    <ComboBoxItem Content="Right-Middle" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Pin Panel Toggle -->
+                            <ToggleButton x:Name="TglPinH"
+                                          ToolTip="Pin Panel Open"
+                                          Margin="7,0,0,0"
+                                          Style="{StaticResource FluentPinToggle}"
+                                          Checked="TglPin_Changed"
+                                          Unchecked="TglPin_Changed" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- ================= VERTICAL DOCK LAYOUT ================= -->
+                    <Grid x:Name="VerticalLayout" Visibility="Collapsed" Width="135">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+
+                            <!-- App Icon Badge -->
+                            <Border CornerRadius="8"
+                                    Width="30"
+                                    Height="30"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,2,0,5"
+                                    BorderBrush="{StaticResource BtnBorderBrush}"
+                                    BorderThickness="1">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FFFFFF" Offset="0.0" />
+                                        <GradientStop Color="#F1F5F9" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Viewbox Width="15" Height="15" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path Data="M 1,3 C 1,1.9 1.9,1 3,1 L 13,1 C 14.1,1 15,1.9 15,3 L 15,13 C 15,14.1 14.1,15 13,15 L 3,15 C 1.9,15 1,14.1 1,13 Z M 3,12 L 13,12 L 9.5,7.5 L 7,10.5 L 5.5,8.5 Z M 5,4.5 C 5,5.3 4.3,6 3.5,6 C 2.7,6 2,5.3 2,4.5 C 2,3.7 2.7,3 3.5,3 C 4.3,3 5,3.7 5,4.5 Z"
+                                          Fill="{StaticResource TextSecondaryBrush}" />
+                                </Viewbox>
+                            </Border>
+
+                            <TextBlock x:Name="TxtWallpaperNameV"
+                                       Text="No Folder"
+                                       FontWeight="SemiBold"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       TextAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalAlignment="Stretch"
+                                       Margin="0,0,0,1" />
+
+                            <TextBlock x:Name="TxtWallpaperIndexV"
+                                       Text="Browse Folder"
+                                       FontSize="10"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       TextAlignment="Center"
+                                       HorizontalAlignment="Stretch"
+                                       Margin="0,0,0,8" />
+
+                            <!-- Prev & Next Row -->
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        ToolTip="Previous Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        HorizontalAlignment="Stretch"
+                                        Click="BtnPrevious_Click">
+                                    <Viewbox Width="9" Height="9">
+                                        <Path Data="M 7,1 L 2,6 L 7,11"
+                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              StrokeThickness="1.8"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round" />
+                                    </Viewbox>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        ToolTip="Next Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        HorizontalAlignment="Stretch"
+                                        Click="BtnNext_Click">
+                                    <Viewbox Width="9" Height="9">
+                                        <Path Data="M 2,1 L 7,6 L 2,11"
+                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              StrokeThickness="1.8"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round" />
+                                    </Viewbox>
+                                </Button>
+                            </Grid>
+
+                            <!-- Random & Folder Row -->
+                            <Grid Margin="0,0,0,7">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="38" />
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0"
+                                        ToolTip="Random Wallpaper"
+                                        Style="{StaticResource FluentButton}"
+                                        HorizontalAlignment="Stretch"
+                                        Click="BtnRandom_Click">
+                                    <Viewbox Width="12" Height="12">
+                                        <Path Data="M 2,3 L 6,3 L 10,11 L 14,11 M 12,9 L 14,11 L 12,13 M 2,11 L 6,11 L 8,7 M 10,3 L 14,3 M 12,1 L 14,3 L 12,5"
+                                              Stroke="{StaticResource TextPrimaryBrush}"
+                                              StrokeThickness="1.5"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round" />
+                                    </Viewbox>
+                                </Button>
+
+                                <Button Grid.Column="2"
+                                        ToolTip="Select Folder"
+                                        Style="{StaticResource FluentButton}"
+                                        HorizontalAlignment="Stretch"
+                                        Click="BtnBrowse_Click">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Viewbox Width="11" Height="11" Margin="0,0,4,0">
+                                            <Path Data="M 1,3 C 1,2 2,1 3,1 L 5.5,1 L 7.5,3 L 12.5,3 C 13.5,3 14.5,4 14.5,5 L 14.5,11 C 14.5,12 13.5,13 12.5,13 L 2.5,13 C 1.5,13 1,12 1,11 Z"
+                                                  Stroke="{StaticResource TextPrimaryBrush}"
+                                                  StrokeThickness="1.4"
+                                                  Fill="{StaticResource BtnHoverBgBrush}" />
+                                        </Viewbox>
+                                        <TextBlock Text="Folder" VerticalAlignment="Center" FontSize="11" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Divider -->
+                            <Rectangle Height="1"
+                                       Fill="{StaticResource DividerBrush}"
+                                       HorizontalAlignment="Stretch"
+                                       Margin="0,0,0,6" />
+
+                            <!-- Position Selector -->
+                            <ComboBox x:Name="CmbPositionV"
+                                      Style="{StaticResource FluentComboBox}"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0,0,0,6"
+                                      SelectionChanged="CmbPosition_SelectionChanged">
+                                <ComboBoxItem Content="Top-Middle" />
+                                <ComboBoxItem Content="Bottom-Middle" />
+                                <ComboBoxItem Content="Left-Middle" />
+                                <ComboBoxItem Content="Right-Middle" />
+                            </ComboBox>
+
+                            <!-- Pin Row -->
+                            <DockPanel HorizontalAlignment="Stretch" Margin="2,0,0,2">
+                                <TextBlock Text="Pin Dock:"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="10.5"
+                                           VerticalAlignment="Center" />
+                                <ToggleButton x:Name="TglPinV"
+                                              DockPanel.Dock="Right"
+                                              HorizontalAlignment="Right"
+                                              ToolTip="Pin Panel Open"
+                                              Style="{StaticResource FluentPinToggle}"
+                                              Checked="TglPin_Changed"
+                                              Unchecked="TglPin_Changed" />
+                            </DockPanel>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</Window>
